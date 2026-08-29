@@ -1,0 +1,35 @@
+{
+  "name": "quick-search",
+  "productName": "Quick Search",
+  "version": "1.0.0",
+  "description": "A tiny desktop search engine built on Electron",
+  "main": "main.js",
+  "author": "Joshua",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win --x64",
+    "dist:mac": "electron-builder --mac"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.joshua.quicksearch",
+    "productName": "Quick Search",
+    "files": ["main.js", "index.html", "renderer.js", "styles.css"],
+    "directories": { "output": "dist" },
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Quick Search"
+    },
+    "mac": { "target": ["dmg"], "category": "public.app-category.utilities" }
+  }
+}
