@@ -13,15 +13,120 @@ body {
   flex-direction: column;
 }
 
+.chrome {
+  -webkit-user-select: none;
+  user-select: none;
+  background: #f5f6f7;
+  border-bottom: 1px solid #dcdfe3;
+}
+
+/* ------------------------------------------------------------- tab strip */
+
+.tabstrip {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  padding: 6px 8px 0;
+  background: #e6e8eb;
+}
+
+/* One tab has nothing to switch between, so the strip just takes up room. */
+body.single-tab .tabstrip { display: none; }
+
+.tabs {
+  display: flex;
+  flex: 1;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar { display: none; }
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 0 1 200px;
+  min-width: 56px;
+  height: 34px;
+  padding: 0 8px 0 11px;
+  border-radius: 9px 9px 0 0;
+  background: #d3d7dc;
+  color: #4a4f56;
+  font-size: 12.5px;
+  cursor: default;
+}
+
+.tab:hover { background: #dde1e6; }
+
+.tab.active {
+  background: #f5f6f7;
+  color: #1f1f1f;
+}
+
+.tab-icon {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  border-radius: 3px;
+}
+
+.tab-title {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tab.loading .tab-title { opacity: 0.65; }
+
+.tab-close {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.55;
+}
+
+.tab-close:hover { background: rgba(0, 0, 0, 0.14); opacity: 1; }
+
+/* Too narrow to be useful once tabs are squeezed down. */
+.tab:not(.active) .tab-close { opacity: 0; }
+.tab:not(.active):hover .tab-close { opacity: 0.55; }
+
+.newtab {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  margin-bottom: 3px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #5a5f66;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.newtab:hover { background: #d3d7dc; }
+
+/* --------------------------------------------------------------- toolbar */
+
 .bar {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 8px 12px;
-  background: #f5f6f7;
-  border-bottom: 1px solid #dcdfe3;
-  -webkit-user-select: none;
-  user-select: none;
 }
 
 .nav { display: flex; gap: 4px; }
@@ -76,10 +181,7 @@ body {
 
 #go:hover { background: #3574e0; }
 
-.progress {
-  height: 2px;
-  background: transparent;
-}
+.progress { height: 2px; background: transparent; }
 
 .progress.loading {
   background: linear-gradient(90deg, #4285f4, #34a853, #fbbc05, #ea4335);
@@ -92,8 +194,23 @@ body {
   to   { background-position: -200% 0; }
 }
 
-#view {
+/* ----------------------------------------------------------------- views */
+
+/* Tabs are stacked and toggled with visibility rather than display:none,
+   which would tear down and reload the guest page on every switch. */
+.views {
+  position: relative;
   flex: 1;
-  width: 100%;
-  border: none;
+  min-height: 0;
 }
+
+.view {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  visibility: hidden;
+}
+
+.view.active { visibility: visible; }

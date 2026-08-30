@@ -25,10 +25,12 @@ and run it.
 
 | File | Purpose |
 | --- | --- |
-| `main.js` | Electron main process — window, webview hardening, Chrome user agent |
-| `index.html` | App shell: toolbar + `<webview>` |
-| `renderer.js` | Search box logic, navigation buttons, loading state |
+| `main.js` | Electron main process — window, menu, shortcuts, webview hardening, Chrome user agent |
+| `preload.js` | Narrow IPC bridge so menu actions reach the page |
+| `index.html` | App shell: tab strip, toolbar, tab container |
+| `renderer.js` | Tab management, search box logic, navigation |
 | `styles.css` | Styling |
+| `assets/icon.png` | App icon (electron-builder converts it to `.ico` at build time) |
 
 ## Run in development
 
@@ -47,14 +49,37 @@ The installer lands in `dist/` as `Quick Search Setup 1.0.0.exe` — a standard 
 installer with a directory picker, Start Menu entry, desktop shortcut, and an
 uninstaller. It is unsigned, so it triggers the SmartScreen prompt described above.
 
+## Tabs
+
+Multiple tabs are supported. Open one with the `+` button or `Ctrl/Cmd+T`, close
+with the `x` or `Ctrl/Cmd+W`, and switch by clicking, `Ctrl+Tab`, or `Ctrl/Cmd+1-9`.
+Links that open a new window (`target="_blank"`) land in a background tab.
+
+The tab strip hides itself when only one tab is open, so the single-tab layout
+looks the same as before. Closing the last tab resets it to the home page rather
+than quitting.
+
+Background tabs stay alive: they are toggled with CSS `visibility` rather than
+`display: none`, which would tear down and reload the page on every switch.
+
 ## Shortcuts
 
-- `Ctrl/Cmd + L` — focus the search box
-- `Ctrl/Cmd + R` — reload the page
-- `Esc` — leave the search box
+| Shortcut | Action |
+| --- | --- |
+| `Ctrl/Cmd + T` | New tab |
+| `Ctrl/Cmd + W` | Close tab |
+| `Ctrl/Cmd + 1-9` | Jump to tab (9 = last tab) |
+| `Ctrl + Tab` | Next tab (`Ctrl+Shift+Tab` for previous) |
+| `Ctrl/Cmd + L` | Focus the search box |
+| `Ctrl/Cmd + R` | Reload the page |
+| `Alt + Left/Right` (`Cmd + [` / `]` on macOS) | Back / forward |
+| `Esc` | Leave the search box |
 
-## Adding an icon
+Shortcuts are wired through the application menu and low-level input handlers on
+every tab, so they still fire while the focus is inside a page.
 
-Drop a 256x256 `icon.ico` into a `build/` folder at the project root.
-electron-builder picks it up automatically; without one it uses the default
-Electron icon.
+## Changing the icon
+
+Replace `assets/icon.png` with a square PNG of **at least 256x256** and rebuild.
+electron-builder generates the multi-resolution `.ico` from it. Larger is better —
+a 512x512 or 1024x1024 source keeps the icon sharp everywhere Windows shows it.

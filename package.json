@@ -1,7 +1,7 @@
 {
   "name": "quick-search",
   "productName": "Quick Search",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A tiny desktop search engine built on Electron",
   "main": "main.js",
   "author": "Joshua",
@@ -18,10 +18,28 @@
   "build": {
     "appId": "com.joshua.quicksearch",
     "productName": "Quick Search",
-    "files": ["main.js", "index.html", "renderer.js", "styles.css"],
-    "directories": { "output": "dist" },
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "renderer.js",
+      "styles.css",
+      "assets/**/*",
+      "!assets/icon-source.png"
+    ],
+    "directories": {
+      "output": "dist"
+    },
     "win": {
-      "target": [{ "target": "nsis", "arch": ["x64"] }]
+      "icon": "assets/icon.png",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
     },
     "nsis": {
       "oneClick": false,
@@ -30,6 +48,12 @@
       "createStartMenuShortcut": true,
       "shortcutName": "Quick Search"
     },
-    "mac": { "target": ["dmg"], "category": "public.app-category.utilities" }
+    "mac": {
+      "icon": "assets/icon.png",
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.utilities"
+    }
   }
 }

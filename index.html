@@ -3,29 +3,35 @@
 <head>
   <meta charset="UTF-8" />
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self';" />
+        content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' https: data:;" />
   <title>Quick Search</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="bar">
-    <div class="nav">
-      <button id="back" class="icon" title="Back" disabled>&#8592;</button>
-      <button id="forward" class="icon" title="Forward" disabled>&#8594;</button>
-      <button id="reload" class="icon" title="Reload">&#8635;</button>
-      <button id="home" class="icon" title="Home">&#8962;</button>
+  <header class="chrome">
+    <div class="tabstrip">
+      <div id="tabs" class="tabs"></div>
+      <button id="new-tab" class="newtab" title="New tab">+</button>
     </div>
 
-    <form id="search-form" class="search">
-      <input id="q" type="text" placeholder="Search Google or type a URL"
-             autocomplete="off" spellcheck="false" autofocus />
-      <button type="submit" id="go">Search</button>
-    </form>
+    <div class="bar">
+      <div class="nav">
+        <button id="back" class="icon" title="Back" disabled>&#8592;</button>
+        <button id="forward" class="icon" title="Forward" disabled>&#8594;</button>
+        <button id="reload" class="icon" title="Reload">&#8635;</button>
+        <button id="home" class="icon" title="Home">&#8962;</button>
+      </div>
+
+      <form id="search-form" class="search">
+        <input id="q" type="text" placeholder="Search Google or type a URL"
+               autocomplete="off" spellcheck="false" autofocus />
+        <button type="submit" id="go">Search</button>
+      </form>
+    </div>
   </header>
 
   <div id="progress" class="progress"></div>
-
-  <webview id="view" src="https://www.google.com"></webview>
+  <div id="views" class="views"></div>
 
   <script src="renderer.js"></script>
 </body>
