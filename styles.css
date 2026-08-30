@@ -1,11 +1,55 @@
+:root {
+  --bg: #ffffff;
+  --chrome-bg: #f5f6f7;
+  --strip-bg: #e6e8eb;
+  --border: #dcdfe3;
+  --text: #1f1f1f;
+  --text-dim: #4a4f56;
+  --tab-bg: #d3d7dc;
+  --tab-hover: #dde1e6;
+  --tab-active: #f5f6f7;
+  --btn-hover: #e3e6ea;
+  --input-bg: #ffffff;
+  --input-border: #cfd4da;
+  --icon: #444444;
+  --icon-disabled: #b6bac0;
+  --accent: #4285f4;
+  --accent-hover: #3574e0;
+  --accent-text: #ffffff;
+  --accent-ring: rgba(66, 133, 244, 0.18);
+  --close-hover: rgba(0, 0, 0, 0.14);
+}
+
+:root[data-theme="dark"] {
+  --bg: #202124;
+  --chrome-bg: #292a2d;
+  --strip-bg: #1a1b1e;
+  --border: #3c4043;
+  --text: #e8eaed;
+  --text-dim: #9aa0a6;
+  --tab-bg: #35363a;
+  --tab-hover: #3f4043;
+  --tab-active: #292a2d;
+  --btn-hover: #3c4043;
+  --input-bg: #35363a;
+  --input-border: #5f6368;
+  --icon: #c9ccd1;
+  --icon-disabled: #5f6368;
+  --accent: #8ab4f8;
+  --accent-hover: #aecbfa;
+  --accent-text: #202124;
+  --accent-ring: rgba(138, 180, 248, 0.24);
+  --close-hover: rgba(255, 255, 255, 0.16);
+}
+
 * { box-sizing: border-box; }
 
 html, body {
   margin: 0;
   height: 100%;
   font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background: #fff;
-  color: #1f1f1f;
+  background: var(--bg);
+  color: var(--text);
 }
 
 body {
@@ -16,8 +60,8 @@ body {
 .chrome {
   -webkit-user-select: none;
   user-select: none;
-  background: #f5f6f7;
-  border-bottom: 1px solid #dcdfe3;
+  background: var(--chrome-bg);
+  border-bottom: 1px solid var(--border);
 }
 
 /* ------------------------------------------------------------- tab strip */
@@ -27,7 +71,7 @@ body {
   align-items: flex-end;
   gap: 4px;
   padding: 6px 8px 0;
-  background: #e6e8eb;
+  background: var(--strip-bg);
 }
 
 /* One tab has nothing to switch between, so the strip just takes up room. */
@@ -52,17 +96,17 @@ body.single-tab .tabstrip { display: none; }
   height: 34px;
   padding: 0 8px 0 11px;
   border-radius: 9px 9px 0 0;
-  background: #d3d7dc;
-  color: #4a4f56;
+  background: var(--tab-bg);
+  color: var(--text-dim);
   font-size: 12.5px;
   cursor: default;
 }
 
-.tab:hover { background: #dde1e6; }
+.tab:hover { background: var(--tab-hover); }
 
 .tab.active {
-  background: #f5f6f7;
-  color: #1f1f1f;
+  background: var(--tab-active);
+  color: var(--text);
 }
 
 .tab-icon {
@@ -98,9 +142,8 @@ body.single-tab .tabstrip { display: none; }
   opacity: 0.55;
 }
 
-.tab-close:hover { background: rgba(0, 0, 0, 0.14); opacity: 1; }
+.tab-close:hover { background: var(--close-hover); opacity: 1; }
 
-/* Too narrow to be useful once tabs are squeezed down. */
 .tab:not(.active) .tab-close { opacity: 0; }
 .tab:not(.active):hover .tab-close { opacity: 0.55; }
 
@@ -112,13 +155,13 @@ body.single-tab .tabstrip { display: none; }
   border: none;
   border-radius: 6px;
   background: transparent;
-  color: #5a5f66;
+  color: var(--text-dim);
   font-size: 18px;
   line-height: 1;
   cursor: pointer;
 }
 
-.newtab:hover { background: #d3d7dc; }
+.newtab:hover { background: var(--tab-bg); }
 
 /* --------------------------------------------------------------- toolbar */
 
@@ -137,13 +180,13 @@ body.single-tab .tabstrip { display: none; }
   border: none;
   border-radius: 6px;
   background: transparent;
-  color: #444;
+  color: var(--icon);
   font-size: 15px;
   cursor: pointer;
 }
 
-.icon:hover:not(:disabled) { background: #e3e6ea; }
-.icon:disabled { color: #b6bac0; cursor: default; }
+.icon:hover:not(:disabled) { background: var(--btn-hover); }
+.icon:disabled { color: var(--icon-disabled); cursor: default; }
 
 .search {
   display: flex;
@@ -155,16 +198,19 @@ body.single-tab .tabstrip { display: none; }
   flex: 1;
   height: 34px;
   padding: 0 14px;
-  border: 1px solid #cfd4da;
+  border: 1px solid var(--input-border);
   border-radius: 17px;
   font-size: 14px;
-  background: #fff;
+  background: var(--input-bg);
+  color: var(--text);
   outline: none;
 }
 
+#q::placeholder { color: var(--text-dim); }
+
 #q:focus {
-  border-color: #4285f4;
-  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.18);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-ring);
 }
 
 #go {
@@ -172,14 +218,14 @@ body.single-tab .tabstrip { display: none; }
   padding: 0 18px;
   border: none;
   border-radius: 17px;
-  background: #4285f4;
-  color: #fff;
+  background: var(--accent);
+  color: var(--accent-text);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
 }
 
-#go:hover { background: #3574e0; }
+#go:hover { background: var(--accent-hover); }
 
 .progress { height: 2px; background: transparent; }
 
@@ -202,6 +248,7 @@ body.single-tab .tabstrip { display: none; }
   position: relative;
   flex: 1;
   min-height: 0;
+  background: var(--bg);
 }
 
 .view {

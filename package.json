@@ -1,7 +1,7 @@
 {
   "name": "quick-search",
   "productName": "Quick Search",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A tiny desktop search engine built on Electron",
   "main": "main.js",
   "author": "Joshua",
@@ -9,7 +9,7 @@
   "scripts": {
     "start": "electron .",
     "dist:win": "electron-builder --win --x64",
-    "dist:mac": "electron-builder --mac"
+    "dist:mac": "electron-builder --mac --arm64 --x64"
   },
   "devDependencies": {
     "electron": "^33.2.0",
@@ -50,9 +50,16 @@
     "mac": {
       "icon": "assets/icon.png",
       "target": [
-        "dmg"
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
       ],
       "category": "public.app-category.utilities"
-    }
+    },
+    "afterPack": "scripts/adhoc-sign.js"
   }
 }

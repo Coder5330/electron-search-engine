@@ -8,6 +8,7 @@ const forward = document.getElementById('forward');
 const reload = document.getElementById('reload');
 const home = document.getElementById('home');
 const progress = document.getElementById('progress');
+const themeBtn = document.getElementById('theme');
 
 const HOME = 'https://www.google.com';
 
@@ -74,7 +75,7 @@ function createTab(url = HOME, { background = false } = {}) {
   el.append(iconEl, titleEl, closeEl);
   tabsEl.appendChild(el);
 
-  const tab = { id, view, el, titleEl, iconEl, loading: false, url };
+  const tab = { id, view, el, titleEl, iconEl, loading: false, ready: false, url };
   tabs.push(tab);
 
   el.addEventListener('click', () => activate(id));
@@ -89,6 +90,13 @@ function createTab(url = HOME, { background = false } = {}) {
 
 function wireView(tab) {
   const { view } = tab;
+
+  // Every webview method below throws until the guest is attached and ready,
+  // which is not true for the tab we just appended to the DOM.
+  view.addEventListener('dom-ready', () => {
+    tab.ready = true;
+    if (tab.id === activeId) syncNav();
+  });
 
   view.addEventListener('did-start-loading', () => {
     tab.loading = true;
@@ -178,8 +186,13 @@ function updateStripState() {
 
 // ------------------------------------------------------------------ toolbar
 
+const readyTab = () => {
+  const tab = activeTab();
+  return tab && tab.ready ? tab : null;
+};
+
 function syncNav() {
-  const view = activeTab()?.view;
+  const view = readyTab()?.view;
   back.disabled = !view || !view.canGoBack();
   forward.disabled = !view || !view.canGoForward();
 }
@@ -200,15 +213,15 @@ function syncInput(url) {
 form.addEventListener('submit', (event) => {
   event.preventDefault();
   const url = toURL(input.value);
-  const tab = activeTab();
+  const tab = readyTab();
   if (url && tab) navigate(tab.view, url);
 });
 
-back.addEventListener('click', () => { const v = activeTab()?.view; if (v?.canGoBack()) v.goBack(); });
-forward.addEventListener('click', () => { const v = activeTab()?.view; if (v?.canGoForward()) v.goForward(); });
-reload.addEventListener('click', () => activeTab()?.view.reload());
+back.addEventListener('click', () => { const v = readyTab()?.view; if (v?.canGoBack()) v.goBack(); });
+forward.addEventListener('click', () => { const v = readyTab()?.view; if (v?.canGoForward()) v.goForward(); });
+reload.addEventListener('click', () => readyTab()?.view.reload());
 home.addEventListener('click', () => {
-  const tab = activeTab();
+  const tab = readyTab();
   if (!tab) return;
   input.value = '';
   navigate(tab.view, HOME);
@@ -216,6 +229,27 @@ home.addEventListener('click', () => {
 newTabBtn.addEventListener('click', () => {
   createTab(HOME);
   input.focus();
+});
+
+// --------------------------------------------------------------- theming
+
+// 'system' follows the OS; light/dark pin it. The main process owns the real
+// state (it also themes the pages inside the tabs) and tells us what to paint.
+const THEME_CYCLE = ['system', 'light', 'dark'];
+const THEME_GLYPH = { system: '\u263D', light: '\u2600', dark: '\u263E' };
+let themeSetting = 'system';
+
+function paintTheme({ theme, dark }) {
+  themeSetting = theme;
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  themeBtn.textContent = THEME_GLYPH[theme];
+  themeBtn.title = `Appearance: ${theme} (click to change)`;
+}
+
+themeBtn.addEventListener('click', async () => {
+  const next = THEME_CYCLE[(THEME_CYCLE.indexOf(themeSetting) + 1) % THEME_CYCLE.length];
+  const state = await window.appShell?.setTheme(next);
+  if (state) paintTheme(state);
 });
 
 // -------------------------------------------------------- menu / shortcuts
@@ -232,15 +266,17 @@ if (shellAPI) {
     if (tabs[target]) activate(tabs[target].id);
   });
   shellAPI.on('focus-search', () => { input.focus(); input.select(); });
-  shellAPI.on('reload', () => activeTab()?.view.reload());
-  shellAPI.on('back', () => { const v = activeTab()?.view; if (v?.canGoBack()) v.goBack(); });
-  shellAPI.on('forward', () => { const v = activeTab()?.view; if (v?.canGoForward()) v.goForward(); });
+  shellAPI.on('reload', () => readyTab()?.view.reload());
+  shellAPI.on('back', () => { const v = readyTab()?.view; if (v?.canGoBack()) v.goBack(); });
+  shellAPI.on('forward', () => { const v = readyTab()?.view; if (v?.canGoForward()) v.goForward(); });
   shellAPI.on('devtools', () => {
-    const v = activeTab()?.view;
+    const v = readyTab()?.view;
     if (!v) return;
     v.isDevToolsOpened() ? v.closeDevTools() : v.openDevTools();
   });
   shellAPI.on('open-url-in-new-tab', (url) => createTab(url, { background: true }));
+  shellAPI.on('theme-changed', paintTheme);
+  shellAPI.getTheme().then(paintTheme);
 }
 
 document.addEventListener('keydown', (event) => {

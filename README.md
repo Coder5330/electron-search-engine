@@ -5,7 +5,9 @@ Type a query, hit Enter, and it loads `https://www.google.com/search?q=<query>`.
 Type something that looks like an address (`github.com`, `https://example.com`,
 `localhost:3000`) and it navigates there instead.
 
-## Install (Windows)
+## Install
+
+### Windows
 
 Download the latest installer from the
 [releases page](https://github.com/Coder5330/electron-search-engine/releases/latest)
@@ -21,16 +23,40 @@ and run it.
 > certificate from a commercial CA (roughly $200-500/year), which is not worth it
 > for a project this size. Tell people you share the build with to expect it.
 
+### macOS
+
+Download the `.dmg` for your chip — `arm64` for Apple Silicon (M1 and later),
+`x64` for Intel — open it, and drag **Quick Search** into Applications.
+
+> [!WARNING]
+> **The app is ad-hoc signed, not signed with an Apple Developer ID or notarized**,
+> so Gatekeeper blocks it on first launch with *"cannot be opened because the
+> developer cannot be verified"*.
+>
+> To open it anyway, right-click the app in Applications and choose **Open**, then
+> **Open** again in the dialog. You only have to do this once.
+>
+> If macOS instead claims the app is *damaged*, clear the quarantine flag it picked
+> up from being downloaded:
+>
+> ```bash
+> xattr -dr com.apple.quarantine "/Applications/Quick Search.app"
+> ```
+>
+> Silencing this properly needs a paid Apple Developer account ($99/year) plus
+> notarization.
+
 ## Files
 
 | File | Purpose |
 | --- | --- |
 | `main.js` | Electron main process — window, menu, shortcuts, webview hardening, Chrome user agent |
-| `preload.js` | Narrow IPC bridge so menu actions reach the page |
+| `preload.js` | Narrow IPC bridge for menu actions and the theme setting |
 | `index.html` | App shell: tab strip, toolbar, tab container |
 | `renderer.js` | Tab management, search box logic, navigation |
 | `styles.css` | Styling |
-| `assets/icon.png` | App icon (electron-builder converts it to `.ico` at build time) |
+| `assets/icon.png` | App icon (electron-builder converts it to `.ico` / `.icns` at build time) |
+| `scripts/adhoc-sign.js` | Build hook that ad-hoc signs the macOS app |
 
 ## Run in development
 
@@ -39,15 +65,31 @@ npm install
 npm start
 ```
 
-## Build the Windows installer
+## Building
 
 ```bash
-npm run dist:win
+npm run dist:win    # Windows NSIS installer
+npm run dist:mac    # macOS .dmg for Apple Silicon and Intel
 ```
 
-The installer lands in `dist/` as `Quick Search Setup 1.0.0.exe` — a standard NSIS
-installer with a directory picker, Start Menu entry, desktop shortcut, and an
-uninstaller. It is unsigned, so it triggers the SmartScreen prompt described above.
+Output lands in `dist/`:
+
+| File | Notes |
+| --- | --- |
+| `Quick Search Setup <version>.exe` | NSIS installer: directory picker, Start Menu entry, desktop shortcut, uninstaller |
+| `Quick Search-<version>-arm64.dmg` | macOS, Apple Silicon |
+| `Quick Search-<version>.dmg` | macOS, Intel |
+| `mac-arm64/Quick Search.app` | The raw `.app`, if you want it without the disk image |
+
+Neither is signed with a real certificate, so both trigger the warnings described
+above. The Windows installer can be built from macOS — electron-builder downloads
+the toolchain it needs, no Wine install required. The macOS build has to run on a Mac.
+
+`scripts/adhoc-sign.js` runs after packaging and ad-hoc signs the `.app`. Without
+it, electron-builder leaves the stock Electron signature on a bundle it has since
+modified, and macOS reports the downloaded app as *damaged* — a harsher failure
+than the unidentified-developer prompt, and one that right-click -> Open will not
+get past.
 
 ## Tabs
 
@@ -62,6 +104,19 @@ than quitting.
 Background tabs stay alive: they are toggled with CSS `visibility` rather than
 `display: none`, which would tear down and reload the page on every switch.
 
+## Dark mode
+
+The toolbar button cycles **System -> Light -> Dark**, and the same options live
+under *View -> Appearance*. `Ctrl/Cmd+D` toggles straight between light and dark.
+The choice is saved to `preferences.json` in the app's user-data folder and
+restored on next launch.
+
+System mode follows the OS and updates live when the OS theme flips.
+
+Because the theme is applied through Electron's `nativeTheme`, it themes the
+**pages inside the tabs** too, not just the app chrome — Google itself renders
+dark rather than a bright page in a dark frame.
+
 ## Shortcuts
 
 | Shortcut | Action |
@@ -72,6 +127,7 @@ Background tabs stay alive: they are toggled with CSS `visibility` rather than
 | `Ctrl + Tab` | Next tab (`Ctrl+Shift+Tab` for previous) |
 | `Ctrl/Cmd + L` | Focus the search box |
 | `Ctrl/Cmd + R` | Reload the page |
+| `Ctrl/Cmd + D` | Toggle dark mode |
 | `Alt + Left/Right` (`Cmd + [` / `]` on macOS) | Back / forward |
 | `Esc` | Leave the search box |
 
