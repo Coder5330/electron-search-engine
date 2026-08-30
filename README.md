@@ -80,6 +80,11 @@ every tab, so they still fire while the focus is inside a page.
 
 ## Changing the icon
 
-Replace `assets/icon.png` with a square PNG of **at least 256x256** and rebuild.
-electron-builder generates the multi-resolution `.ico` from it. Larger is better —
-a 512x512 or 1024x1024 source keeps the icon sharp everywhere Windows shows it.
+Replace `assets/icon.png` with a **square** PNG of at least 256x256 and rebuild.
+electron-builder converts it to `.ico` automatically.
+
+The generated `.ico` holds a single 256x256 entry regardless of how large the
+source is, and Windows downscales that for the taskbar and Explorer. A larger
+source still helps: at 256x256 exactly the entry is a straight copy, while a
+768x768 or 1024x1024 source gives a clean downscale instead of an upscale of
+something small.

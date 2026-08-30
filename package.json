@@ -24,8 +24,7 @@
       "index.html",
       "renderer.js",
       "styles.css",
-      "assets/**/*",
-      "!assets/icon-source.png"
+      "assets/**/*"
     ],
     "directories": {
       "output": "dist"
